@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册登录界面</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../static/css/stylel.css">
+    <script src="../static/js/jquery-1.11.1.min.js"></script>
+    <style>
+        .showMessage {
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            color: #ffffff;
+            z-index: 999;
+            transform: translate(-50%, 0);
+        }
+
+        .showMessageSuccess {
+            background-color: #f0f9eb;
+            border: 1px solid #E1F3D8;
+            color: #67c23a;
+        }
+
+        .showMessageError {
+            background-color: #fef0f0;
+            border: 1px solid #fde2e2;
+            color: #F76C6C;
+        }
+    </style>
+</head>
+<body>
+<div class="container right-panel-active">
+    <!-- 注册 -->
+    <div class="container_form container--signup">
+        <form action="#" class="form" id="form1">
+            <h2 class="form_title">注 册</h2>
+            <input id="r_username" type="text" placeholder="UserName" class="input"/>
+            <input id="r_email" type="email" placeholder="Email" class="input"/>
+            <input id="r_password" type="password" placeholder="Password" class="input"/>
+            <button class="btn" id="register">注 册</button>
+        </form>
+    </div>
+
+    <!-- 登录 -->
+    <div class="container_form container--signin">
+        <form action="#" class="form" id="form2">
+            <h2 class="form_title">登 录</h2>
+            <input id="l_email" type="email" placeholder="Email" class="input"/>
+            <input id="l_password" type="password" placeholder="Password" class="input"/>
+            <a href="#" class="link">Forgot your password?</a>
+            <button class="btn" id="login">登 录</button>
+        </form>
+    </div>
+
+    <!-- 浮层 -->
+    <div class="container_overlay">
+        <div class="overlay">
+            <div class="overlay_panel overlay--left">
+                <button class="btn" id="signIn">登 录</button>
+            </div>
+            <div class="overlay_panel overlay--right">
+                <button class="btn" id="signUp">注 册</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 背景 -->
+<div class="slidershow">
+    <div class="slidershow--image" style="background-image: url('https://source.unsplash.com/Snqdjm71Y5s')"></div>
+    <div class="slidershow--image" style="background-image: url('https://source.unsplash.com/5APj-fzKE-k')"></div>
+    <div class="slidershow--image" style="background-image: url('https://source.unsplash.com/wnbBH_CGOYQ')"></div>
+    <div class="slidershow--image" style="background-image: url('https://source.unsplash.com/OkTfw7fXLPk')"></div>
+</div>
+
+<!-- partial -->
+<script src="../static/js/script.js"></script>
+<script>
+
+
+    function showMessage(message, type) {
+        let messageJQ = $("<div class='showMessage'>" + message + "</div>");
+        if (type == 0) {
+            messageJQ.addClass("showMessageError");
+        } else if (type == 1) {
+            messageJQ.addClass("showMessageSuccess");
+        }
+        // 先将原始隐藏，然后添加到页面，最后以400毫秒的速度下拉显示出来
+        messageJQ.hide().appendTo("body").slideDown(400);
+        // 4秒之后自动删除生成的元素
+        window.setTimeout(function () {
+            messageJQ.show().slideUp(400, function () {
+                messageJQ.remove();
+            })
+        }, 3000);
+    }
+
+    // 注册
+    $("#register").click(function () {
+        var username = $("#r_username").val();
+        var email = $("#r_email").val();
+        var password = $("#r_password").val();
+        $.ajax({
+            url: "/register",
+            data: {
+                username: username,
+                email: email,
+                password: password
+            },
+            success: function (data) {
+                if(data.status==true){
+                    showMessage(data.msg, 1);
+                }else {
+                    showMessage(data.msg, 0);
+                }
+            },
+            error: function () {
+                showMessage("网络请求失败", 0);
+            }
+        })
+    });
+
+    // 登录
+    $("#login").click(function () {
+        var email = $("#l_email").val();
+        var password = $("#l_password").val();
+        $.ajax({
+            url: "/login",
+            data: {
+                email: email,
+                password: password
+            },
+            success: function (data) {
+                if(data.status == true){
+                    showMessage(data.msg, 1);
+                    window.location.href = "/main";
+                }else {
+                    showMessage(data.msg, 0);
+                }
+            },
+            error: function () {
+                showMessage("网络请求失败", 0);
+            }
+        })
+    });
+
+</script>
+</body>
+</html>

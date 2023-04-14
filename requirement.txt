@@ -1,0 +1,5 @@
+flask
+torch
+pymysql
+joblib
+tablib

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图片检测</title>
+    <meta name="description" content="图片检测">
+    <meta name="keywords" content="图片检测">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../static/plugins/elementui/index.css">
+    <link rel="stylesheet" href="../static/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <style type="text/css">
+        .el-main {
+            position: absolute;
+            top: 70px;
+            bottom: 0px;
+            left: 200px;
+            right: 10px;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-purple sidebar-mini">
+<div id="app">
+    <el-container>
+        <el-header class="main-header" style="height:70px;">
+            <nav class="navbar navbar-static-top" :class=''>
+                <!-- Logo -->
+                <a href="#" class="logo" style="text-align:center">
+                    <span class="logo-lg" style="width: 273px;height: 30px;color: #FFFFFF;font-size: 26px">图片检测系统</span>
+                </a>
+                <div class="right-menu">
+                    <span class="help"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>帮助</span>
+                    <el-dropdown class="avatar-container right-menu-item" trigger="click">
+                        <div class="avatar-wrapper">
+                            <img src="../static/img/user8-128x128.jpg" class="user-avatar">
+                        </div>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item divided>
+                                <span style="display:block;"><a href="/logout">退出</a></span>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </nav>
+        </el-header>
+        <el-container>
+            <el-aside width="200px">
+                <el-menu>
+                    <el-submenu index="1">
+                        <template slot="title"><i class="el-icon-menu"></i>数据管理</template>
+                        <el-menu-item-group>
+
+                            <el-menu-item index="1-3">
+                                <a href="/pm" target="right">检测记录</a>
+                            </el-menu-item>
+                            <el-menu-item index="1-4">
+                                <a href="/ycxz" target="right">图片预测</a>
+                            </el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+            <el-container>
+                <iframe name="right" class="el-main" src="/pm" width="100%" height="100%"
+                        frameborder="0"></iframe>
+            </el-container>
+        </el-container>
+    </el-container>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../static/js/vue.js"></script>
+<script src="../static/plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+<script src="../static/js/axios-0.18.0.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            username: '',//当前登录的用户名
+        },
+        created() {
+            //发送请求获取当前登录用户的用户名
+            axios.get('/getUsername').then((response) => {
+                this.username = response.data.data;
+            });
+        }
+    });
+    $(function () {
+        var wd = 200;
+        $(".el-main").css('width', $('body').width() - wd + 'px');
+    });
+</script>
+</html>

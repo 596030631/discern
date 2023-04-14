@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图片检测</title>
+    <meta name="description" content="图片检测">
+    <meta name="keywords" content="图片检测">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../static/plugins/elementui/index.css">
+    <link rel="stylesheet" href="../static/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>数据管理<small>图片检测详细数据管理</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>数据管理</el-breadcrumb-item>
+            <el-breadcrumb-item>图片检测详细数据管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="dq" label="地区" align="center"></el-table-column>
+                <el-table-column prop="pm" label=排名" align="center"></el-table-column>
+                <el-table-column prop="name" label="名称" align="center"></el-table-column>
+
+            </el-table>
+
+
+
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../static/js/vue.js"></script>
+<script src="../static/plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+<script src="../static/js/axios-0.18.0.js"></script>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            params: {
+                        startTime: '',
+                        endTime: '',
+                        date: ''
+                    },
+            date: [],
+            queryString: null,//查询条件
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            this.findAll();
+        },
+        methods: {
+             //获取时间区间方法
+                dateFormat(picker){
+                    this.params.startTime=picker[0]
+                    this.params.endTime=picker[1]
+                    //类型是type="daterange"
+                    //this.params.startTime=picker[0].toString
+                    // this.params.endTime=picker[1].toString
+                },
+            dateChange(dates) {
+      this.date = dates
+	  if (dates === null || dates.length === 0) {
+	    this.startDate = null
+	  }
+    },
+    calendarChange(dates) {
+	   // 记录选择的开始日期，方便后面根据开始日期限定结束日期
+	   let hasSelectDate = dates !== null && dates.length > 0
+	   this.startDate = hasSelectDate ? dates[0] : null
+    },
+    disabledDateFun(time) {
+      // 8.64e7就是一天的时间戳 24*60*60*1000
+      // 根据选择的开始日期，日期范围限定在30天之内
+      if (this.startDate !== null) {
+        return (
+          time.getTime() < this.startDate.getTime() ||
+          time.getTime() >= new Date().getTime() ||
+          time.getTime() > this.startDate.getTime() + 30 * 8.64e7
+        );
+      }
+      // 默认只能选择今天以及今天之前的日期
+      return time.getTime() >= new Date().getTime();
+    },
+
+
+            //查询所有
+            findAll() {
+                axios.get("/findPmAll").then((res) => {
+                    this.dataList = res.data.data;
+                });
+            },
+            // 重置表单
+            resetForm() {
+                this.formData = {};
+            },
+
+
+
+        }
+    })
+</script>
+</html>

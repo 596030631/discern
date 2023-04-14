@@ -1,0 +1,52 @@
+import pymysql
+from pymysql import cursors
+
+#数据库连接
+def get_connection():
+    # 连接数据库
+    conn = pymysql.connect(host='localhost',
+                           user='root',
+                           password='jianghua521',
+                           db='dist',
+                           cursorclass=cursors.DictCursor,
+                           charset='utf8')
+    cursor = conn.cursor()
+    return conn, cursor
+
+
+def close_connection(conn, cursor):
+    # 关闭数据库
+    cursor.close()
+    conn.close()
+
+
+def findAll():
+    # 查询所有数据
+    conn, cursor = get_connection()
+    sql = "SELECT * FROM dist"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    close_connection(conn, cursor)
+    return result
+
+def findPmAll():
+    # 查询所有数据
+    conn, cursor = get_connection()
+    sql = "SELECT * FROM pm"
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    close_connection(conn, cursor)
+    return result
+
+def tqByTime(content, startTime, endTime):
+    # 根据省份查询数据
+    conn, cursor = get_connection()
+    sql = "SELECT * FROM yc WHERE  1 =  1"
+    if len(startTime) > 0:
+        sql += " and datetime between '"+startTime+"' and '"+endTime+"'"
+    print(sql)
+    cursor.execute(sql)
+
+    result = cursor.fetchall()
+    close_connection(conn, cursor)
+    return result

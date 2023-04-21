@@ -33,8 +33,9 @@ class DetectModel:
 
         print(self.labels)
 
-    def predict(self, img):
+    def predict(self, img, category):
         print(img)
+        print(category)
         # file_path = 'D:\\PycharmProj\\ultralytics\\ultralytics\\assets\\bus.jpg'
         ret = self.model.predict(source=img)
         print(ret[0].boxes.data)
@@ -51,12 +52,18 @@ class DetectModel:
             det = det.numpy()
             if conf > det[4]:
                 continue
-            xmin, ymin, xmax, ymax = int(det[0]), int(det[1]), int(det[2]), int(det[3])
-            print(type(xmin))
-            print(xmin)
-            result['bbox'].append({'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax, 'id': int(det[5]),
-                                   'info': self.labels[int(det[5])], 'conf': float(det[4])})
-            cv2.rectangle(im, (xmin, ymin), (xmax, ymax), (255, 0, 255), 1)
+            if not category:
+                result['bbox'].append({'id': int(det[5]),
+                                       'info': self.labels[int(det[5])], 'conf': float(det[4])})
+                continue
+
+            if self.labels[int(det[5])]['category'] == category:
+                xmin, ymin, xmax, ymax = int(det[0]), int(det[1]), int(det[2]), int(det[3])
+                print(type(xmin))
+                print(xmin)
+                result['bbox'].append({'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax, 'id': int(det[5]),
+                                       'info': self.labels[int(det[5])], 'conf': float(det[4])})
+                cv2.rectangle(im, (xmin, ymin), (xmax, ymax), (255, 0, 255), 1)
         cv2.imwrite(img, im)
         print(result)
         return result

@@ -43,7 +43,15 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="一级分类	">
-                                    <el-select readonly v-model="formData.category" placeholder="请先上传图片"/>
+                                    <el-select v-model="value" placeholder="请先上传图片">
+                                        <el-option
+                                                v-for="item in categoryList"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
@@ -71,7 +79,7 @@
                         <el-dialog v-model="dialogVisible">
                             <img width="100%" :src="dialogImageUrl" alt=""/>
                         </el-dialog>
-                        <el-button type="primary" @click="yc()">开始检测</el-button>
+                        <el-button type="primary" @click="detect()">开始检测</el-button>
 
                         <div slot="footer" class="dialog-footer">
                             <el-button @click="dialogFormVisible = false">取消</el-button>
@@ -96,6 +104,9 @@
     var vue = new Vue({
         el: '#app',
         data: {
+            categoryList: [],
+            value: '',
+
             filelist: [],
             dialogImageUrl: "",
             dialogVisible: false,
@@ -108,10 +119,9 @@
             queryString: null,//查询条件
             dataList: [],//当前页要展示的分页列表数据
             formData: {
-                category:[],
-                ej:"",
-                url:"",
-                sbFile:""
+                category:"",
+                name:"",
+                url:""
             },//表单数据
             dialogFormVisible: false,//增加表单是否可见
             dialogFormVisible4Edit: false,//编辑表单是否可见
@@ -129,8 +139,8 @@
         this.dialogVisible = true;
       },
           uploadSuccess(response, file, fileList) {
-            this.formData.category = response.category;
             this.formData.name = response.url;
+            this.categoryList = response.category
       if (response.code != 200) {
         this.$message({
           message: '识别失败',
@@ -167,12 +177,15 @@
                 });
             },
             //添加
-            yc() {
-                axios.post("/yc", this.formData).then((res) => {
+            detect() {
+                                    this.formData.category = this.value;
+
+                axios.post("/detect", this.formData).then((res) => {
                     //this.dialogFormVisible = false;
                     if (res.data.status) {
 
-                        this.formData.url = res.url;
+                        this.formData.name = res.url;
+
                         this.$message({
                             message: res.data.msg,
                             type: 'success'
@@ -218,6 +231,11 @@
             },
         }
     })
+
+
+
+
+
 
 </script>
 </html>

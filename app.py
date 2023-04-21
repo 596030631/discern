@@ -75,7 +75,7 @@ def uploadFile():
     attfile = request.files.get('file')
     attfile.save(os.path.join(save_path, attfile.filename))
     url = attfile.filename
-    predict = detect_model.predict(os.path.join(save_path, attfile.filename))
+    predict = detect_model.predict(os.path.join(save_path, attfile.filename), None)
     category = []
     for i in predict['bbox']:
         category.append({'label':i['info']['category'], 'value':i['info']['category']})
@@ -93,19 +93,20 @@ def download():
     return send_from_directory(path, file_name)
 
 
-@app.route("/yc", methods=['POST'])
-def yc():
+@app.route("/detect", methods=['POST'])
+def detect():
     data = request.get_json()
-    print(data)
+    print(f'识别入参:{data}')
     # 获取文件
     filename = data.get("name")
-    category_id = data.get("category_id")
-    print(f'文件名称:{filename}  类别ID={category_id}')
+    category = data.get("category")
+
+    print(f'文件名称:{filename}  类别ID={category}')
     # 保存文件的路径
     save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH, filename)
     print(f'保存路径:{save_path}')
 
-    predict = detect_model.predict(save_path)
+    predict = detect_model.predict(save_path, category)
 
     # 二级识别结果
     ej = "交通"

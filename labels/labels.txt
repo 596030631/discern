@@ -1,0 +1,80 @@
+0,person,人,0
+1,bicycle,自行车,1
+2,car,汽车,1
+3,motorcycle,摩托车,1
+4,airplane,飞机,1
+5,bus,公共汽车,1
+6,train,火车,1
+7,truck,卡车,1
+8,boat,船,1
+9,traffic light,红绿灯,1
+10,fire hydrant,消火栓,8
+11,stop sign,停止标记,1
+12,parking meter,停车收费牌,1
+13,bench,工作台,5
+14,bird,鸟,0
+15,cat,猫,0
+16,dog,狗,0
+17,horse,马,0
+18,sheep,绵羊,0
+19,cow,奶牛,0
+20,elephant,大象,0
+21,bear,熊,0
+22,zebra,斑马,0
+23,giraffe,长颈鹿,0
+24,backpack,背包,7
+25,umbrella,雨伞,7
+26,handbag,手提包,7
+27,tie,领带,7
+28,suitcase,行李箱,7
+29,frisbee,飞盘,3
+30,skis,滑雪板,3
+31,snowboard,雪板,3
+32,sports ball,运动球,3
+33,kite,风筝,3
+34,baseball bat,棒球棍,3
+35,baseball glove,棒球手套,3
+36,skateboard,滑板,3
+37,surfboard,冲浪板,3
+38,tennis racket,网球拍,3
+39,bottle,瓶,2
+40,wine glass,酒杯,2
+41,cup,杯子,2
+42,fork,叉子,2
+43,knife,刀子,2
+44,spoon,勺子,2
+45,bowl,碗,2
+46,banana,香蕉,6
+47,apple,苹果,6
+48,sandwich,三明治,6
+49,orange,橙子,6
+50,broccoli,西兰花,6
+51,carrot,胡萝卜,6
+52,hot dog,热狗,6
+53,pizza,披萨,6
+54,donut,甜甜圈,6
+55,cake,蛋糕,6
+56,chair,椅子,4
+57,couch,沙发,4
+58,potted plant,盆栽,4
+59,bed,床,4
+60,dining table,餐桌,4
+61,toilet,卫生间,8
+62,tv,电视,4
+63,laptop,笔记本,5
+64,mouse,鼠标,5
+65,remote,远程,5
+66,keyboard,键盘,5
+67,cell phone,手机,5
+68,microwave,微波炉,4
+69,oven,烘箱,4
+70,toaster,烤面包机,4
+71,sink,洗涤池,8
+72,refrigerator,冰箱,4
+73,book,书,5
+74,clock,时钟,4
+75,vase,花瓶,4
+76,scissors,剪刀,5
+77,teddy bear,玩具熊,4
+78,hair drier,吹风机,4
+79,toothbrush,牙刷,4

@@ -1,9 +1,9 @@
 import argparse
 import os
 
-from yolo.engine.model import YOLO
-
 import cv2
+
+from yolo.engine.model import YOLO
 
 
 class DetectModel:
@@ -14,6 +14,24 @@ class DetectModel:
         print(cfg)
         print(weights)
         self.model = YOLO(cfg).load(weights)  # build from YAML and transfer weights
+        self.category = []
+        self.labels = []
+
+        with open('labels/categroy.txt', 'r', encoding='utf-8') as f:
+            l = f.readlines()
+            for i in l:
+                self.category.append(i.split(',')[1].replace('\n', ''))
+        print(self.category)
+
+        with open('labels/labels.txt', 'r', encoding='utf-8') as f:
+            l = f.readlines()
+            for i in l:
+                ls = i.split(',')
+                self.labels.append(
+                    {'id': int(ls[0]), 'en': ls[1], 'cn': ls[2], 'category_id': int(ls[3]),
+                     'category': self.category[int(ls[3])]})
+
+        print(self.labels)
 
     def predict(self, img):
         print(img)
@@ -36,9 +54,11 @@ class DetectModel:
             xmin, ymin, xmax, ymax = int(det[0]), int(det[1]), int(det[2]), int(det[3])
             print(type(xmin))
             print(xmin)
-            result['bbox'].append({'xmin':xmin, 'ymin':ymin, 'xmax':xmax, 'ymax':ymax, 'id':int(det[5]), 'conf':float(det[4])})
+            result['bbox'].append({'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax, 'id': int(det[5]),
+                                   'info': self.labels[int(det[5])], 'conf': float(det[4])})
             cv2.rectangle(im, (xmin, ymin), (xmax, ymax), (255, 0, 255), 1)
         cv2.imwrite(img, im)
+        print(result)
         return result
 
 

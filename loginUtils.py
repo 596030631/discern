@@ -1,16 +1,4 @@
-import pymysql
-import hashlib
-
-
-def get_connection():
-    # 连接数据库
-    conn = pymysql.connect(host='localhost',
-                           user='root',
-                           password='jianghua521',
-                           db='dist',
-                           charset='utf8')
-    cursor = conn.cursor()
-    return conn, cursor
+from database import get_connection
 
 
 def close_connection(conn, cursor):
@@ -30,6 +18,7 @@ def is_registered(username, email):
     else:
         return True
 
+
 # 注册
 def register(username, email, password):
     sql = 'insert into user(username, email, password) values(%s, %s, %s)'
@@ -39,9 +28,10 @@ def register(username, email, password):
     close_connection(conn, cursor)
     return True
 
+
 # 登录
 def login(email, password):
-    print('----------',email, password)
+    print('----------', email, password)
     sql = 'select * from user where email=%s and password=%s'
     conn, cursor = get_connection()
     cursor.execute(sql, (email, password))
@@ -52,6 +42,7 @@ def login(email, password):
         return True
     else:
         return False
+
 
 # 获取用户名
 def getUser(email):

@@ -6,9 +6,11 @@ import loginUtils
 import utils, tqUtils, config
 import string
 from os import urandom
-import joblib
-import json
-import tablib
+import os
+import datetime
+import pymysql
+
+from database import get_connection
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -16,9 +18,17 @@ app.secret_key = urandom(50)
 app.permanent_session_lifetime = datetime.timedelta(seconds=60 * 60)
 
 
-@app.route("/tqyc")
-def report():
-    return render_template("tqyc.html")
+def execute_sql(sql):
+    conn, curses = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+
+
 
 
 @app.route('/')
@@ -27,25 +37,7 @@ def index():
 
 
 
-def generate_csv_data(data: dict) -> str:
 
-    # Defining CSV columns in a list to maintain
-    # the order
-    csv_columns = data.keys()
-
-    # Generate the first row of CSV
-    csv_data = ",".join(csv_columns) + "\n"
-
-    # Generate the single record present
-    new_row = list()
-    for col in csv_columns:
-        new_row.append(str(data[col]))
-
-    # Concatenate the record with the column information
-    # in CSV format
-    csv_data += ",".join(new_row) + "\n"
-
-    return csv_data
 @app.route('/main')
 def main():
     return render_template('main.html')
@@ -55,16 +47,9 @@ def ycxz():
     return render_template('ycxz.html')
 
 
-
-
 @app.route('/pm')
 def pm():
     return render_template('pm.html')
-
-
-
-
-
 
 
 @app.route("/findAll")
@@ -78,15 +63,44 @@ def findPmAll():
     return jsonify({"status": True, "msg": "查询所有信息成功", "data": data})
 
 
-@app.route("/tqByTime")
-def tqByTime():
-    content = request.args.get("content")
-    startTime = request.args.get("startTime")
-    endTime = request.args.get("endTime")
-    data = tqUtils.tqByTime(content, startTime, endTime)
-    return jsonify({"status": True, "msg": "查询所有信息成功", "data": data})
+
+@app.route("/upload",methods=['POST'])
+def uploadFile():
+    # 保存文件的路径
+    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], 'static/img')
+    print(save_path)
+    # 获取文件
+    attfile = request.files.get('file')
+    attfile.save(os.path.join(save_path, attfile.filename))
+    lb = "交通"
+    url = attfile.filename
+    return {"code":200,"lb":lb,"url":url, "message":"上传请求成功"}
+
+@app.route("/yc",methods=['POST'])
+def yc():
+    data = request.get_json()
+    print(data)
+    # 获取文件
+    filename = data.get("url")
+    print(filename)
+    # 保存文件的路径
+    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], 'static/img')+filename
+    print(save_path)
 
 
+    filepath = os.path.join(save_path, filename)
+    #二级识别结果
+    ej = "交通"
+    #生成识别后的图片的路径
+    sbFile = ""
+    #保存到数据库识别记录
+    sql = f"""
+                                       REPLACE INTO `pm` ( `jg`, `datetime`)
+                                       VALUES ('{ej}', '{datetime.datetime.now()}')
+                                   """
+    print(sql)
+    execute_sql(sql)
+    return {"code":200,"ej":ej,"file":sbFile, "message":"识别成功"}
 # 注册
 @app.route("/register", methods=["POST", "GET"])
 def register():

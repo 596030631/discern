@@ -37,46 +37,47 @@
             <div class="add-form">
                 <el-dialog title="预测数据" :visible.sync="dialogFormVisible">
 
-                     <el-form ref="dataAddForm" :model="formData" label-position="right"
+                    <el-form ref="dataAddForm" :model="formData" label-position="right"
                              label-width="100px">
 
-                    <el-row>
+                        <el-row>
                             <el-col :span="12">
                                 <el-form-item label="一级分类	">
-                                    <el-input readonly v-model="formData.lb"/>
+                                    <el-select readonly v-model="formData.category" placeholder="请先上传图片"/>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
-                                <el-form-item label="二级分类">
+                                <el-form-item label="输出结果">
                                     <el-input v-model="formData.cholesterol"/>
                                 </el-form-item>
                             </el-col>
-                        <el-col :span="12">
+                            <el-col :span="12">
                                 <el-form-item label="识别结果图片">
-                                    <img style="width:500px; height: 500px" :src="formData.data"/>
+                                    <img style="width:500px; height: 500px" :src="formData.url"/>
                                 </el-form-item>
                             </el-col>
                         </el-row>
-                    <el-upload
-                            v-model="filelist"
-                            action="http://127.0.0.1:5000/upload"
-                            :auto-upload="true"
-                            list-type="picture-card"
-                             :on-success="uploadSuccess"
-                            :on-preview="handlePictureCardPreview"
-                            :on-remove="handleRemove"
+                        <el-upload
+                                v-model="filelist"
+                                action="http://127.0.0.1:5000/upload"
+                                :auto-upload="true"
+                                list-type="picture-card"
+                                :on-success="uploadSuccess"
+                                :on-preview="handlePictureCardPreview"
+                                :on-remove="handleRemove"
                         >
                             <i class="el-icon-plus"></i>
                         </el-upload>
                         <el-dialog v-model="dialogVisible">
-                            <img width="100%" :src="dialogImageUrl" alt="" />
+                            <img width="100%" :src="dialogImageUrl" alt=""/>
                         </el-dialog>
-                    <el-button type="primary" @click="yc()">检测</el-button>
+                        <el-button type="primary" @click="yc()">开始检测</el-button>
 
-                    <div slot="footer" class="dialog-footer">
-                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible = false">取消</el-button>
 
-                    </div></el-form>
+                        </div>
+                    </el-form>
                 </el-dialog>
 
             </div>
@@ -107,7 +108,7 @@
             queryString: null,//查询条件
             dataList: [],//当前页要展示的分页列表数据
             formData: {
-                lb:"",
+                category:[],
                 ej:"",
                 url:"",
                 sbFile:""
@@ -127,10 +128,9 @@
         this.dialogImageUrl = file.url;
         this.dialogVisible = true;
       },
-            uploadSuccess(response, file, fileList) {
-
-          this.formData.lb = response.lb;
-          this.formData.url = response.url;
+          uploadSuccess(response, file, fileList) {
+            this.formData.category = response.category;
+            this.formData.name = response.url;
       if (response.code != 200) {
         this.$message({
           message: '识别失败',
@@ -172,6 +172,7 @@
                     //this.dialogFormVisible = false;
                     if (res.data.status) {
 
+                        this.formData.url = res.url;
                         this.$message({
                             message: res.data.msg,
                             type: 'success'
@@ -217,5 +218,6 @@
             },
         }
     })
+
 </script>
 </html>

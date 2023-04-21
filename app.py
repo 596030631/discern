@@ -74,10 +74,14 @@ def uploadFile():
     # 获取文件
     attfile = request.files.get('file')
     attfile.save(os.path.join(save_path, attfile.filename))
-    lb = "交通"
     url = attfile.filename
-    return {"code": 200, "lb": lb, "url": url, "message": "上传请求成功"}
-
+    predict = detect_model.predict(os.path.join(save_path, attfile.filename))
+    category = []
+    for i in predict['bbox']:
+        category.append({'label':i['info']['category'], 'value':i['info']['category']})
+    ret = {"code": 200, "category": category, "url": url, "message": "类别检测完成"}
+    print(ret)
+    return ret
 
 @app.route('/download')
 def download():
@@ -94,8 +98,9 @@ def yc():
     data = request.get_json()
     print(data)
     # 获取文件
-    filename = data.get("url")
-    print(f'文件名称:{filename}')
+    filename = data.get("name")
+    category_id = data.get("category_id")
+    print(f'文件名称:{filename}  类别ID={category_id}')
     # 保存文件的路径
     save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH, filename)
     print(f'保存路径:{save_path}')
@@ -113,7 +118,10 @@ def yc():
                                    """
     print(sql)
     execute_sql(sql)
-    return {"code": 200, "data": predict, "message": "识别成功"}
+    print(predict)
+    ret = {"code": 200, "url": predict['url'], "message": "识别成功"}
+    print(ret)
+    return ret
 
 
 # 注册

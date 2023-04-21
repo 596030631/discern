@@ -43,7 +43,7 @@ class DetectModel:
         conf = 0.3
 
         result = {}
-        result['img'] = f'http://127.0.0.1:5000/download?file_name={os.path.basename(img)}'
+        result['url'] = f'http://127.0.0.1:5000/download?file_name={os.path.basename(img)}'
         result['bbox'] = []
 
         for det in dets:

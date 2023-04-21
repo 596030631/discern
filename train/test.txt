@@ -1,8 +1,0 @@
-int36  a=a7, b=5Tu, z=a+b;
-          int c=10;
-          for(int i=0;i<10;i++){
-             if(c%2==0) z=z+10;
-             else z=z+1z;
-             c=c+1;
-          }
-

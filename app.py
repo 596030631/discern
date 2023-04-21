@@ -1,21 +1,28 @@
+import argparse
 import datetime
-
-from flask import Flask, render_template, request, jsonify, Response, session
-import time
-import loginUtils
-import utils, tqUtils, config
-import string
-from os import urandom
 import os
-import datetime
-import pymysql
+from os import urandom
 
+from flask import Flask, render_template, request, jsonify, session, send_file, send_from_directory
+
+import config
+import loginUtils
+import tqUtils
 from database import get_connection
+from main import load_model
 
 app = Flask(__name__)
 app.config.from_object(config)
 app.secret_key = urandom(50)
 app.permanent_session_lifetime = datetime.timedelta(seconds=60 * 60)
+
+IMG_PATH = 'img'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--cfg', default='models/v8/yolov8.yaml', help='Input your model yaml.')
+parser.add_argument('--weights', default=str('weights/yolov8n.pt'), help='Path to input weights.')
+args = parser.parse_args()
+detect_model = load_model(args)
 
 
 def execute_sql(sql):
@@ -27,20 +34,15 @@ def execute_sql(sql):
     conn.close()
 
 
-
-
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
-
-
 @app.route('/main')
 def main():
     return render_template('main.html')
+
 
 @app.route('/ycxz')
 def ycxz():
@@ -57,50 +59,63 @@ def findAll():
     data = tqUtils.findAll()
     return jsonify({"status": True, "msg": "查询所有信息成功", "data": data})
 
+
 @app.route("/findPmAll")
 def findPmAll():
     data = tqUtils.findPmAll()
     return jsonify({"status": True, "msg": "查询所有信息成功", "data": data})
 
 
-
-@app.route("/upload",methods=['POST'])
+@app.route("/upload", methods=['POST'])
 def uploadFile():
     # 保存文件的路径
-    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], 'static/img')
+    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH)
     print(save_path)
     # 获取文件
     attfile = request.files.get('file')
     attfile.save(os.path.join(save_path, attfile.filename))
     lb = "交通"
     url = attfile.filename
-    return {"code":200,"lb":lb,"url":url, "message":"上传请求成功"}
+    return {"code": 200, "lb": lb, "url": url, "message": "上传请求成功"}
 
-@app.route("/yc",methods=['POST'])
+
+@app.route('/download')
+def download():
+    file_name = request.args.get('file_name')
+    path = os.path.join(os.path.abspath(os.path.dirname(__file__)), IMG_PATH)
+    print(path)
+    print(IMG_PATH)
+    print(file_name)
+    return send_from_directory(path, file_name)
+
+
+@app.route("/yc", methods=['POST'])
 def yc():
     data = request.get_json()
     print(data)
     # 获取文件
     filename = data.get("url")
-    print(filename)
+    print(f'文件名称:{filename}')
     # 保存文件的路径
-    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], 'static/img')+filename
-    print(save_path)
+    save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH, filename)
+    print(f'保存路径:{save_path}')
 
+    predict = detect_model.predict(save_path)
 
-    filepath = os.path.join(save_path, filename)
-    #二级识别结果
+    # 二级识别结果
     ej = "交通"
-    #生成识别后的图片的路径
+    # 生成识别后的图片的路径
     sbFile = ""
-    #保存到数据库识别记录
+    # 保存到数据库识别记录
     sql = f"""
                                        REPLACE INTO `pm` ( `jg`, `datetime`)
                                        VALUES ('{ej}', '{datetime.datetime.now()}')
                                    """
     print(sql)
     execute_sql(sql)
-    return {"code":200,"ej":ej,"file":sbFile, "message":"识别成功"}
+    return {"code": 200, "data": predict, "message": "识别成功"}
+
+
 # 注册
 @app.route("/register", methods=["POST", "GET"])
 def register():
@@ -131,18 +146,12 @@ def login():
         return jsonify({"status": False, "msg": "用户名或密码错误"})
 
 
-
-
-
-
-
-
-
 # 退出登录
 @app.route("/logout", methods=["POST", "GET"])
 def logout():
     session.clear()
     return render_template('index.html')
+
 
 # 获取用户名
 @app.route("/getUsername")
@@ -151,9 +160,6 @@ def getUsername():
     if email:
         username = loginUtils.getUser(email)
         return jsonify({"status": True, "data": username})
-
-
-
 
 
 if __name__ == '__main__':

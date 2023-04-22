@@ -70,7 +70,6 @@ def findPmAll():
 def uploadFile():
     # 保存文件的路径
     save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH)
-    print(save_path)
     # 获取文件
     attfile = request.files.get('file')
     attfile.save(os.path.join(save_path, attfile.filename))
@@ -101,26 +100,19 @@ def detect():
     filename = data.get("name")
     category = data.get("category")
 
-    print(f'文件名称:{filename}  类别ID={category}')
     # 保存文件的路径
     save_path = os.path.join(os.path.abspath(os.path.dirname(__file__)).split('TPMService')[0], IMG_PATH, filename)
-    print(f'保存路径:{save_path}')
 
     predict = detect_model.predict(save_path, category)
 
-    # 二级识别结果
-    ej = "交通"
-    # 生成识别后的图片的路径
-    sbFile = ""
-    # 保存到数据库识别记录
+
     sql = f"""
                                        REPLACE INTO `pm` ( `jg`, `datetime`)
-                                       VALUES ('{ej}', '{datetime.datetime.now()}')
+                                       VALUES ('{category}', '{datetime.datetime.now()}')
                                    """
-    print(sql)
+
     execute_sql(sql)
-    print(predict)
-    ret = {"code": 200, "url": predict['url'], "message": "识别成功"}
+    ret = {"code": 200, "url": predict['url'], "message": "识别成功", "data": predict['bbox']}
     print(ret)
     return ret
 

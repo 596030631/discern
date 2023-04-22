@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body class="hold-transition">
+
 <div id="app">
     <div class="content-header">
         <h1>数据管理<small>图片检测</small></h1>
@@ -23,26 +24,26 @@
             <el-breadcrumb-item>图片检测</el-breadcrumb-item>
         </el-breadcrumb>
     </div>
+
     <div class="app-container">
         <div class="box">
             <div class="filter-container">
 
-                <el-button type="primary" class="butT" @click="handleCreate()">预测</el-button>
+                <!--                <el-button type="primary" class="butT" @click="handleCreate()">预测</el-button>-->
             </div>
 
-            <div class="pagination-container">
 
-            </div>
-            <!-- 新增标签弹层 -->
-            <div class="add-form">
-                <el-dialog title="预测数据" :visible.sync="dialogFormVisible">
-
-                    <el-form ref="dataAddForm" :model="formData" label-position="right"
-                             label-width="100px">
+            <el-container>
+                <el-header>
+                    <el-form ref="dataAddForm" :model="formData">
 
                         <el-row>
                             <el-col :span="12">
-                                <el-form-item label="一级分类	">
+                                <el-button type="primary" @click="detect()">开始标注</el-button>
+                            </el-col>
+
+                            <el-col :span="12">
+                                <el-form-item label="类别:">
                                     <el-select v-model="value" placeholder="请先上传图片">
                                         <el-option
                                                 v-for="item in categoryList"
@@ -54,41 +55,78 @@
 
                                 </el-form-item>
                             </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="输出结果">
-                                    <el-input v-model="formData.cholesterol"/>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="识别结果图片">
-                                    <img style="width:500px; height: 500px" :src="formData.url"/>
-                                </el-form-item>
-                            </el-col>
                         </el-row>
-                        <el-upload
-                                v-model="filelist"
-                                action="http://127.0.0.1:5000/upload"
-                                :auto-upload="true"
-                                list-type="picture-card"
-                                :on-success="uploadSuccess"
-                                :on-preview="handlePictureCardPreview"
-                                :on-remove="handleRemove"
-                        >
-                            <i class="el-icon-plus"></i>
-                        </el-upload>
-                        <el-dialog v-model="dialogVisible">
-                            <img width="100%" :src="dialogImageUrl" alt=""/>
-                        </el-dialog>
-                        <el-button type="primary" @click="detect()">开始检测</el-button>
-
-                        <div slot="footer" class="dialog-footer">
-                            <el-button @click="dialogFormVisible = false">取消</el-button>
-
-                        </div>
                     </el-form>
-                </el-dialog>
 
-            </div>
+
+                </el-header>
+                <!--                <el-container>-->
+                <el-aside width="1000px" style="margin: 16px">
+                    <el-upload
+                            v-model="filelist"
+                            action="http://127.0.0.1:5000/upload"
+                            :auto-upload="true"
+                            list-type="picture-card"
+                            :on-success="uploadSuccess"
+                            :on-preview="handlePictureCardPreview"
+                            :on-remove="handleRemove">
+                        <i class="el-icon-plus"></i>
+                    </el-upload>
+
+                </el-aside>
+
+                <el-main>
+                    <div class="demo-image" style="width: 400px; height: 400px; margin-top: 8px">
+
+
+                        <el-form ref="dataAddForm" :model="formData" label-position="right">
+
+                            <el-row>
+                                <el-col :span="8">
+                                    <!--                                        <el-form-item label="识别结果图片">-->
+                                    <img style="width: 400px; height: 400px" :src="detectImage">
+                                    </img>
+                                    <!--                                        </el-form-item>-->
+                                </el-col>
+                                <el-col :span="8">
+                                    <el-card class="box-card" style="margin-left: 400px; height: 400px">
+
+
+                                        <div slot="header" class="clearfix">
+                                            <span>检测结果</span>
+                                            <el-button style="float: right; padding: 3px 0" type="text"></el-button>
+                                            <div v-for="item in detectFinalList" :key="item.id" class="text item">
+                                                item.text
+                                            </div>
+                                        </div>
+
+
+                                    </el-card>
+                                </el-col>
+
+                                <el-col :span="8">
+
+                                </el-col>
+
+
+                            </el-row>
+
+
+                            <el-dialog v-model="dialogVisible">
+                                <img width="100%" :src="dialogImageUrl" alt=""/>
+                            </el-dialog>
+
+                            <div slot="footer" class="dialog-footer">
+                                <el-button @click="dialogFormVisible = false">取消</el-button>
+
+                            </div>
+                        </el-form>
+                    </div>
+                </el-main>
+
+
+                <!--                </el-container>-->
+            </el-container>
 
 
         </div>
@@ -100,14 +138,24 @@
 <script src="../static/plugins/elementui/index.js"></script>
 <script type="text/javascript" src="../static/js/jquery.min.js"></script>
 <script src="../static/js/axios-0.18.0.js"></script>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script>
-    var vue = new Vue({
+    const vue = new Vue({
         el: '#app',
         data: {
             categoryList: [],
+            delimiters: ['[[', ']]'],
+            detectFinalList: [
+                {id: 1, text: 'Item 1'},
+                {id: 2, text: 'Item 2'},
+                {id: 3, text: 'Item 3'}
+            ],
             value: '',
-
             filelist: [],
+            detectImage: "http://127.0.0.1:5000/download?file_name=00008-2589139406.png",
             dialogImageUrl: "",
             dialogVisible: false,
             pagination: {//分页相关模型数据
@@ -119,47 +167,49 @@
             queryString: null,//查询条件
             dataList: [],//当前页要展示的分页列表数据
             formData: {
-                category:"",
-                name:"",
-                url:""
+                category: "",
+                name: "",
+                url: ""
             },//表单数据
             dialogFormVisible: false,//增加表单是否可见
             dialogFormVisible4Edit: false,//编辑表单是否可见
         },
+
         //钩子函数，VUE对象初始化完成后自动执行
         created() {
-            {#this.findAll();#}
+            {
+                this.findAll();
+            }
             this.findPage();
         },
         methods: {
             // 预览
-      handlePictureCardPreview(file) {
-          alert(file.url)
-        this.dialogImageUrl = file.url;
-        this.dialogVisible = true;
-      },
-          uploadSuccess(response, file, fileList) {
-            this.formData.name = response.url;
-            this.categoryList = response.category
-      if (response.code != 200) {
-        this.$message({
-          message: '识别失败',
-          type: 'warning'
-        })
-        this.fileList = []
-      } else {
-
-        this.$message({
-          message: '上传成功',
-          type: 'success'
-        })
-          this.$forceUpdate()
-      }
-    },
+            handlePictureCardPreview(file) {
+                alert(file.url)
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            },
+            uploadSuccess(response, file, fileList) {
+                this.formData.name = response.url;
+                this.categoryList = response.category
+                if (response.code !== 200) {
+                    this.$message({
+                        message: '识别失败',
+                        type: 'warning'
+                    })
+                    this.fileList = []
+                } else {
+                    this.$message({
+                        message: '上传成功',
+                        type: 'success'
+                    })
+                    this.$forceUpdate()
+                }
+            },
             uploadFile(response, file, fileList) {
-              console.log(response)
-              console.log(file)
-              console.log(fileList)
+                console.log(response)
+                console.log(file)
+                console.log(fileList)
             },
             //编辑
             handleEdit() {
@@ -178,28 +228,32 @@
             },
             //添加
             detect() {
-                                    this.formData.category = this.value;
+                this.formData.category = this.value;
 
                 axios.post("/detect", this.formData).then((res) => {
                     //this.dialogFormVisible = false;
-                    if (res.data.status) {
+                    console.log(res)
 
-                        this.formData.name = res.url;
+                    // if (res.status === 200) {
 
-                        this.$message({
-                            message: res.data.msg,
-                            type: 'success'
-                        });
-                    } else {
-                        this.$message.error(res.data.msg);
-                    }
+                    this.detectImage = res.data.url;
+                    this.detectFinalList = res.data
+                    console.log("dddddddddddddddddddddddddddd")
+                    console.log(this.detectFinalList)
+                    this.$message({
+                        message: res.data.msg,
+                        type: 'success'
+                    });
+                    // } else {
+                    //     this.$message.error(res.message);
+                    // }
                 });
             },
 
             //分页查询
             findPage() {
                 var param = {
-                    currentPage:this.pagination.currentPage,
+                    currentPage: this.pagination.currentPage,
                     pageSize: this.pagination.pageSize,
                     queryString: this.pagination.queryString,
                 }
@@ -212,7 +266,7 @@
                 this.resetForm();
                 this.dialogFormVisible = true;
             },
-             // 重置表单
+            // 重置表单
             resetForm() {
                 this.formData = {};
             },
@@ -230,12 +284,32 @@
                 });
             },
         }
-    })
-
-
-
-
+    });
 
 
 </script>
+
+<style>
+    .text {
+        font-size: 14px;
+    }
+
+    .item {
+        margin-bottom: 18px;
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+        display: table;
+        content: "";
+    }
+
+    .clearfix:after {
+        clear: both
+    }
+
+    .box-card {
+        width: 480px;
+    }
+</style>
 </html>
